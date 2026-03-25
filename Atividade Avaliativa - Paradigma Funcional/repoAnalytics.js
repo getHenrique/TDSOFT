@@ -31,12 +31,11 @@ function normalizeData(filePath) {
 * Implementação das Análises ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-// 1. Contagem de eventos por tipo
-function countEventTypes(events) {
-  return events.reduce(
-    (accumulator, event) => ({
+function countBy(items, criteria) {
+  return items.reduce(
+    (accumulator, item) => ({
       ...accumulator,
-      [event.event_type]: (accumulator[event.event_type] || 0) + 1
+      [item[criteria]]: (accumulator[item[criteria]] || 0) + 1
     }),
   {});
 }
@@ -44,12 +43,7 @@ function countEventTypes(events) {
 // 2. Ranking de Usuários
 function rankTopUsers(events) {
   return Object.entries(
-    events.reduce(
-      (accumulator, event) => ({
-        ...accumulator,
-        [event.username]: (accumulator[event.username] || 0) + 1
-      }),
-    {})
+    countBy(events, 'username')
   )
     .map(([username, eventCount]) => ({ username, eventCount }))
     .sort((a, b) => b.eventCount - a.eventCount)
@@ -102,8 +96,8 @@ const allEvents = files.flatMap(file => normalizeData(path.join(__dirname, file)
 // fileSystem.writeFileSync('output.json', JSON.stringify(allEvents, null, 2));
 
 // Contar eventos por tipo
-const eventCounts = countEventTypes(allEvents);
-console.log('\n=== Contagem por Tipo de Evento ===');
+const eventCounts = countBy(allEvents, 'event_type');
+console.log('\n=== Contagem por Tipo de Evento A===');
 console.log(JSON.stringify(eventCounts, null, 2));
 
 // Ranking dos top 10 usuários com mais eventos
@@ -112,7 +106,7 @@ console.log('\n=== Top 10 Usuários com Mais Eventos ===');
 console.log(JSON.stringify(topUsers, null, 2));
 
 // Total de eventos por repositório
-const totalEvents = files.flatMap(file => eventCount(path.join(__dirname, file)));
+const totalEvents = countBy(allEvents, 'repo');
 console.log('\n=== Total de eventos por repositório ===');
 console.log(JSON.stringify(totalEvents, null, 2));
 
