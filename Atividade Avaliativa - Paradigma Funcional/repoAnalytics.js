@@ -1,3 +1,5 @@
+/* Meu Repositório: https://github.com/getHenrique/TDSOFT/tree/master/Atividade%20Avaliativa%20-%20Paradigma%20Funcional */
+
 const fileSystem = require('fs');
 const path = require('path');
 
@@ -21,7 +23,8 @@ function normalizeData(filePath) {
       repo: path.basename(filePath, '.json'),// Extrai o nome do repositório a partir do nome do arquivo
       username: user.login,
       event_type: event.type,
-      event_date: event.date
+      event_month: event.date.slice(5, 7),
+      event_year: event.date.slice(0, 4)
     }))
   );
 
@@ -31,55 +34,45 @@ function normalizeData(filePath) {
 * Implementação das Análises ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-function countBy(items, criteria) {
-  return items.reduce(
-    (accumulator, item) => ({
+// Recebe um array de eventos e um string critério. Retorna um objeto com a contagem da ocorrência de cada critéio no evento.
+function countEventsBy(events, criteria) {
+  return events.sort((a, b) => b[criteria] - a[criteria]).reduce(
+    (accumulator, event) => ({
       ...accumulator,
-      [item[criteria]]: (accumulator[item[criteria]] || 0) + 1
+      [event[criteria]]: (accumulator[event[criteria]] || 0) + 1
     }),
   {});
 }
 
-// 2. Ranking de Usuários
-function rankTopUsers(events) {
+// Recebe um array de eventos e retorna 
+function rankEventsBy(events, criteria) {// Precisa de otimização urgente
   return Object.entries(
-    countBy(events, 'username')
+    countEventsBy(events, criteria)
   )
-    .map(([username, eventCount]) => ({ username, eventCount }))
+    .map(([value, eventCount]) => ({ [criteria]: value, eventCount }))
     .sort((a, b) => b.eventCount - a.eventCount)
     .slice(0, 10);
 }
 
-// 3. Análise por Repositório
-
-// Total de Eventos por Repositório
-function eventCount(filePath){
-  return {
-    repo: path.basename(filePath, '.json'),
-    eventCount: readFile(filePath).length
-  };
+// Recebe um array de eventos e um critério. Retorna um array dos critérios filtrados por valor único.
+function filterUniqueOf(events, criteria) {
+  return events
+    .map(event => event[criteria])
+    .filter((value, index, self) => self.indexOf(value) === index);
 }
 
-// Número de Usuários Únicos
-function countUniqueUsers(events) {
-  return Object.keys(
-    events.reduce(
-      (accumulator, event) => ({
+// Recebe um array de eventos e retorna um objeto agrupando eventos por mês e ano
+function groupEventsByPeriod(events) {
+  return events.reduce(
+    (accumulator, event) => {
+      const monthYear = `${event.event_month}-${event.event_year}`;
+      return {
         ...accumulator,
-        [event.username]: true
-      }), {})
-  ).length;
-}
-
-// Diversidade de Tipos de Evento
-function countUniqueEvents(events) {
-  return Object.keys(
-    events.reduce(
-      (accumulator, event) => ({
-        ...accumulator,
-        [event.event_type]: true
-      }), {})
-  ).length;
+        [monthYear]: [...(accumulator[monthYear] || []), event]
+      };
+    },
+    {}
+  );
 }
 
 /*
@@ -93,29 +86,34 @@ const files = ['beef.json', 'easylist.json', 'gentoo.json'];
 const allEvents = files.flatMap(file => normalizeData(path.join(__dirname, file)));
 
 // Exportar processamento do pipeline para arquivo JSON (para debug)
-// fileSystem.writeFileSync('output.json', JSON.stringify(allEvents, null, 2));
+//fileSystem.writeFileSync('output.json', JSON.stringify(allEvents, null, 2));
 
 // Contar eventos por tipo
-const eventCounts = countBy(allEvents, 'event_type');
+const eventCounts = countEventsBy(allEvents, 'event_type');
 console.log('\n=== Contagem por Tipo de Evento A===');
 console.log(JSON.stringify(eventCounts, null, 2));
 
 // Ranking dos top 10 usuários com mais eventos
-const topUsers = rankTopUsers(allEvents);
+const topUsers = rankEventsBy(allEvents, 'username');
 console.log('\n=== Top 10 Usuários com Mais Eventos ===');
 console.log(JSON.stringify(topUsers, null, 2));
 
 // Total de eventos por repositório
-const totalEvents = countBy(allEvents, 'repo');
+const totalEvents = countEventsBy(allEvents, 'repo');
 console.log('\n=== Total de eventos por repositório ===');
 console.log(JSON.stringify(totalEvents, null, 2));
 
 // Número de usuários únicos
-const uniqueUserCount = countUniqueUsers(allEvents);
+const uniqueUserCount = countEventsBy(filterUniqueOf(allEvents, 'username'), 'username');
 console.log('\n=== Contagem de Usuários Únicos ===');
 console.log(uniqueUserCount);
 
 // Diversidade em eventos
-const uniqueEventCount = countUniqueEvents(allEvents);
-console.log('\n=== Diversidade de Eventos (Número de Diferentes Eventos) ===');
+const uniqueEventCount = countEventsBy(filterUniqueOf(allEvents, 'event_type'), 'event_type');
+console.log('\n=== Diversidade de Eventos (Número de Diferentes Tipos de Eventos) ===');
 console.log(uniqueEventCount);
+
+// Eventos agrupados por período
+const eventsByPeriod = groupEventsByPeriod(allEvents);
+fileSystem.writeFileSync('groupedByPeriod.json', JSON.stringify(eventsByPeriod, null, 2));
+console.log("\n=== Eventos agrupados por período guardados em \'groupedByPeriod.json\' ===")
