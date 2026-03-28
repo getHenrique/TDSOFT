@@ -23,8 +23,7 @@ function normalizeData(filePath) {
       repo: path.basename(filePath, '.json'),// Extrai o nome do repositório a partir do nome do arquivo
       username: user.login,
       event_type: event.type,
-      event_month: event.date.slice(5, 7),
-      event_year: event.date.slice(0, 4)
+      period: event.date.slice(0, 7),
     }))
   );
 
@@ -45,13 +44,15 @@ function countEventsBy(events, criteria) {
 }
 
 // Recebe um array de eventos e retorna 
-function rankEventsBy(events, criteria) {// Precisa de otimização urgente
-  return Object.entries(
-    countEventsBy(events, criteria)
-  )
+function rankEventsBy(events, criteria, top, order = 'desc') {
+  return Object.entries(countEventsBy(events, criteria))
     .map(([value, eventCount]) => ({ [criteria]: value, eventCount }))
-    .sort((a, b) => b.eventCount - a.eventCount)
-    .slice(0, 10);
+    .sort((a, b) =>
+      order === 'desc'
+        ? b.eventCount - a.eventCount
+        : a.eventCount - b.eventCount
+    )
+    .slice(0, top);
 }
 
 // Recebe um array de eventos e um critério. Retorna um array dos critérios filtrados por valor único.
@@ -62,15 +63,12 @@ function filterUniqueOf(events, criteria) {
 }
 
 // Recebe um array de eventos e retorna um objeto agrupando eventos por mês e ano
-function groupEventsByPeriod(events) {
-  return events.reduce(
-    (accumulator, event) => {
-      const monthYear = `${event.event_month}-${event.event_year}`;
-      return {
-        ...accumulator,
-        [monthYear]: [...(accumulator[monthYear] || []), event]
-      };
-    },
+function groupEventsBy(events, criteria) {
+  return events.sort((a, b) => b[criteria] - a[criteria]).reduce(
+    (accumulator, event) => ({
+      ...accumulator,
+      [event[criteria]]: [...(accumulator[event[criteria]] || []), event]
+    }),
     {}
   );
 }
@@ -86,7 +84,7 @@ const files = ['beef.json', 'easylist.json', 'gentoo.json'];
 const allEvents = files.flatMap(file => normalizeData(path.join(__dirname, file)));
 
 // Exportar processamento do pipeline para arquivo JSON (para debug)
-//fileSystem.writeFileSync('output.json', JSON.stringify(allEvents, null, 2));
+fileSystem.writeFileSync('output.json', JSON.stringify(allEvents, null, 2));
 
 // Contar eventos por tipo
 const eventCounts = countEventsBy(allEvents, 'event_type');
@@ -94,7 +92,7 @@ console.log('\n=== Contagem por Tipo de Evento A===');
 console.log(JSON.stringify(eventCounts, null, 2));
 
 // Ranking dos top 10 usuários com mais eventos
-const topUsers = rankEventsBy(allEvents, 'username');
+const topUsers = rankEventsBy(allEvents, 'username', 10, 'desc');
 console.log('\n=== Top 10 Usuários com Mais Eventos ===');
 console.log(JSON.stringify(topUsers, null, 2));
 
@@ -114,6 +112,22 @@ console.log('\n=== Diversidade de Eventos (Número de Diferentes Tipos de Evento
 console.log(uniqueEventCount);
 
 // Eventos agrupados por período
-const eventsByPeriod = groupEventsByPeriod(allEvents);
+const eventsByPeriod = groupEventsBy(allEvents, 'period');
 fileSystem.writeFileSync('groupedByPeriod.json', JSON.stringify(eventsByPeriod, null, 2));
 console.log("\n=== Eventos agrupados por período guardados em \'groupedByPeriod.json\' ===")
+
+// Usuários categorizados
+const mediumUsers = rankEventsBy(allEvents, 'username', allEvents.length, 'desc')
+  .slice(10, 10 + allEvents.length / 2);
+const leastUsers = rankEventsBy(allEvents, 'username', allEvents.length/2, 'asc');
+const groupedUsers = 
+{
+  'topUsers' : topUsers,// Top 10 Users
+  'mediumUsers' : mediumUsers,// Upper half users that are not on top 10
+  'leastUsers' : leastUsers// Bottom half users
+//Yes, it's not the best way to do it, but I only had 3 minutes left
+};
+fileSystem.writeFileSync('userGroups.json', JSON.stringify(groupedUsers, null, 2));
+console.log("\n=== Usuários agrupados por atividade guardados em \'userGroups.json\' ===");
+
+console.log("\nFim\n");
