@@ -84,7 +84,7 @@ const files = ['beef.json', 'easylist.json', 'gentoo.json'];
 const allEvents = files.flatMap(file => normalizeData(path.join(__dirname, file)));
 
 // Exportar processamento do pipeline para arquivo JSON (para debug)
-fileSystem.writeFileSync('output.json', JSON.stringify(allEvents, null, 2));
+//fileSystem.writeFileSync('output.json', JSON.stringify(allEvents, null, 2));
 
 // Contar eventos por tipo
 const eventCounts = countEventsBy(allEvents, 'event_type');
@@ -125,7 +125,9 @@ const groupedUsers =
   'topUsers' : topUsers,// Top 10 Users
   'mediumUsers' : mediumUsers,// Upper half users that are not on top 10
   'leastUsers' : leastUsers// Bottom half users
-//Yes, it's not the best way to do it, but I only had 3 minutes left
+// Yes, it's not nearly the best way to do it, but I only had 3 minutes left
+// It would be better to use the counts to separate users in a more specific way
+// This would even open new group categories possibilities
 };
 fileSystem.writeFileSync('userGroups.json', JSON.stringify(groupedUsers, null, 2));
 console.log("\n=== Usuários agrupados por atividade guardados em \'userGroups.json\' ===");
