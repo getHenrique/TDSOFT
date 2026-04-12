@@ -4,10 +4,12 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 import tools.jackson.databind.JsonNode;
 
+@Service
 public class APIClient implements ScoreClient {
 
     @Override
