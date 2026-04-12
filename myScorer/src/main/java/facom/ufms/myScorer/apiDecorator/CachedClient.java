@@ -1,4 +1,6 @@
-package facom.ufms.myScorer;
+package facom.ufms.myScorer.apiDecorator;
+
+import facom.ufms.myScorer.ScoreClient;
 
 import java.util.Map;
 import java.util.HashMap;

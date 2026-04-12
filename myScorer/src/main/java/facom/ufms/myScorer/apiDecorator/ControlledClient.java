@@ -1,6 +1,8 @@
-package facom.ufms.myScorer;
+package facom.ufms.myScorer.apiDecorator;
 
-public class ControlledClient extends DecoratorClient{
+import facom.ufms.myScorer.ScoreClient;
+
+public class ControlledClient extends DecoratorClient {
 
     public ControlledClient(ScoreClient client) {
         super(client);

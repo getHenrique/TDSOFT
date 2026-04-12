@@ -1,4 +1,6 @@
-package facom.ufms.myScorer;
+package facom.ufms.myScorer.apiDecorator;
+
+import facom.ufms.myScorer.ScoreClient;
 
 public abstract class DecoratorClient implements ScoreClient {
 
