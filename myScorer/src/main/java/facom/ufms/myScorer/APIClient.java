@@ -32,8 +32,8 @@ public class APIClient implements ScoreClient {
         } catch (RestClientResponseException e) {
 
             IO.println(
-                "API request failed:\nStatus:\n" +
-                e.getStatusCode().value() +
+                "API request failed.\n" +
+                "Status: " + e.getStatusCode().value() +
                 "\n" +
                 e.getResponseBodyAsString()
             );

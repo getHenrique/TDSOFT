@@ -7,7 +7,7 @@ public class CachedClient extends DecoratorClient {
 
     //Agora eu apliquei a lógica de caching :)
 
-    private final Map<String, Integer> cache = new HashMap<>();;
+    private final Map<String, Integer> cache = new HashMap<>();
 
     public CachedClient(ScoreClient client) {
         super(client);
@@ -15,7 +15,7 @@ public class CachedClient extends DecoratorClient {
 
     @Override
     public int score(String cpf) {
-        return this.cache.computeIfAbsent(cpf, score -> this.client.score(cpf));
+        return this.cache.computeIfAbsent(cpf, _ -> this.client.score(cpf));
     }
 
 }

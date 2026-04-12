@@ -11,8 +11,8 @@ public class ControlledClient extends DecoratorClient{
 
         try {
             Thread.sleep(1000);
-        } catch (InterruptedException ex) {
-            System.getLogger(ControlledClient.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+        } catch (InterruptedException e) {
+            System.getLogger(ControlledClient.class.getName()).log(System.Logger.Level.ERROR, (String) null, e);
         }
 
         return this.client.score(cpf);
