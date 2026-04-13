@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.PriorityBlockingQueue;
 
-@Component("priorityStrategy")
+@Component("Priority")
 public class PriorityRequester implements QueueStrategy {
 
     private final BlockingQueue<ProxyRequest> requestQueue = new PriorityBlockingQueue<>();

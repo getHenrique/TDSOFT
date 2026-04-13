@@ -23,7 +23,7 @@ public class ProxyClient implements ScoreClient {
     private static final Logger log = LoggerFactory.getLogger(ProxyClient.class);
 
     //Troque o qualifier para trocar a estratégia
-    public ProxyClient(@Qualifier("fifoStrategy") QueueStrategy queueStrategy) {
+    public ProxyClient(@Qualifier("FIFO") QueueStrategy queueStrategy) {
         requestBuffer = queueStrategy;
         realClient = new APIClient();
     }
@@ -39,8 +39,10 @@ public class ProxyClient implements ScoreClient {
         });
 
         try {
+            if(future.get() != -1) log.info("Sucesso! Score de {} obtido para CPF: {}", future.get(), cpf);
             return future.join();
         } catch (Exception e) {
+            log.error("Erro ao chamar upstream para o CPF: {}", cpf, e);
             Thread.currentThread().interrupt();
             return -1;
         }
