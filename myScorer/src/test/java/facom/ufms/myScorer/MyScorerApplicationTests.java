@@ -4,7 +4,6 @@ import facom.ufms.myScorer.apiProxy.ProxyClient;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.ApplicationContext;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -14,48 +13,38 @@ import java.util.concurrent.TimeUnit;
 class MyScorerApplicationTests {
 
     @Autowired
-    private ApplicationContext context;
-
+    private ProxyClient proxyClient;
     @Autowired
-    private ProxyClient client;
+    private APIClient apiClient;
 
     @Test
-    void testProxy() {
-        // Test with current strategy (configured in application.properties)
-        ExecutorService executor = Executors.newFixedThreadPool(5);
-
+    void testeRajadaControlada() {
+        IO.println("Inicindo Rajada controlada:");
         for(int i = 0; i < 5; i++) {
-            int callerNumber = i;
+            //20 requisições seguidas, as 4 primeiras não estão em cache, as restantes são devolvidas por cache
+            IO.println(proxyClient.score("736.489.210-96"));
+            IO.println(proxyClient.score("837.968.450-88"));
+            IO.println(proxyClient.score("734.055.940-06"));
+            IO.println(proxyClient.score("514.790.640-17"));
+        }
+    }
+
+    @Test
+    void testePenalidadeProposital() {
+
+        ExecutorService executor = Executors.newFixedThreadPool(2);
+
+        //Sem Proxy:
+        IO.println("Sem proxy:");
+        for(int i = 0; i < 2; i++) {
             executor.submit(() -> {
-                /*######Teste sem cache######################################################*/
-                int score = client.score("736.489.210-96");
-                if(score > -1) System.out.printf("Score from caller Nº%d - %d\n", callerNumber, score);
-                score = client.score("837.968.450-88");
-                if(score > -1) System.out.printf("Score from caller Nº%d - %d\n", callerNumber, score);
-                score = client.score("734.055.940-06");
-                if(score > -1) System.out.printf("Score from caller Nº%d - %d\n", callerNumber, score);
-                score = client.score("514.790.640-17");
-                if(score > -1) System.out.printf("Score from caller Nº%d - %d\n", callerNumber, score);
-                /*######Teste com cache######################################################*/
-                /*for(int j = 0; j < 2; j++){
-                    // Atenção: Isto vai bloquear aqui até que o Scheduler processe este pedido
-                    int score = client.score("837.968.450-88");
-                    if(score > -1)
-                        System.out.printf("Score from caller Nº%d - %d\n", callerNumber, score);
-                }
-                for(int k = 0; k < 2; k++) {
-                    int score = client.score("736.489.210-96");
-                    if(score > -1) System.out.printf("Score from caller Nº%d - %d\n", callerNumber, score);
-                }*/
+                IO.println(apiClient.score("736.489.210-96"));
             });
         }
 
         executor.shutdown();
         try {
-            // IMPORTANTE: Como tem 5 threads a fazer 4 pedidos cada, são 20 pedidos no total.
-            // A uma taxa de 1 pedido por segundo, isto vai demorar pelo menos 20 segundos a concluir.
-            // Por isso, aumentei o timeout para 60 segundos.
-            executor.awaitTermination(60, TimeUnit.SECONDS);
+            executor.awaitTermination(10, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
