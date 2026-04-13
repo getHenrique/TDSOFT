@@ -29,28 +29,23 @@ class MyScorerApplicationTests {
             executor.submit(() -> {
                 /*######Teste sem cache######################################################*/
                 int score = client.score("736.489.210-96");
-                if (score > -1)
-                    System.out.printf("Score from caller Nº%d - %d\n", callerNumber, score);
+                if(score > -1) System.out.printf("Score from caller Nº%d - %d\n", callerNumber, score);
                 score = client.score("837.968.450-88");
-                if (score > -1)
-                    System.out.printf("Score from caller Nº%d - %d\n", callerNumber, score);
+                if(score > -1) System.out.printf("Score from caller Nº%d - %d\n", callerNumber, score);
                 score = client.score("734.055.940-06");
-                if (score > -1)
-                    System.out.printf("Score from caller Nº%d - %d\n", callerNumber, score);
+                if(score > -1) System.out.printf("Score from caller Nº%d - %d\n", callerNumber, score);
                 score = client.score("514.790.640-17");
-                if (score > -1)
-                    System.out.printf("Score from caller Nº%d - %d\n", callerNumber, score);
+                if(score > -1) System.out.printf("Score from caller Nº%d - %d\n", callerNumber, score);
                 /*######Teste com cache######################################################*/
                 /*for(int j = 0; j < 2; j++){
                     // Atenção: Isto vai bloquear aqui até que o Scheduler processe este pedido
                     int score = client.score("837.968.450-88");
-                    if (score > -1)
+                    if(score > -1)
                         System.out.printf("Score from caller Nº%d - %d\n", callerNumber, score);
                 }
                 for(int k = 0; k < 2; k++) {
                     int score = client.score("736.489.210-96");
-                    if (score > -1)
-                        System.out.printf("Score from caller Nº%d - %d\n", callerNumber, score);
+                    if(score > -1) System.out.printf("Score from caller Nº%d - %d\n", callerNumber, score);
                 }*/
             });
         }

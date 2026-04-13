@@ -3,10 +3,9 @@ package facom.ufms.myScorer.apiProxy;
 import facom.ufms.myScorer.APIClient;
 import facom.ufms.myScorer.ScoreClient;
 import facom.ufms.myScorer.queueStrategy.QueueStrategy;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
@@ -18,7 +17,8 @@ public class ProxyClient implements ScoreClient {
     private final Map<String, CompletableFuture> cache = new ConcurrentHashMap<>();
     private final QueueStrategy requestBuffer;
 
-    public ProxyClient(QueueStrategy queueStrategy) {
+    //Troque o qualifier para trocar a estratégia
+    public ProxyClient(@Qualifier("fifoStrategy") QueueStrategy queueStrategy) {
         requestBuffer = queueStrategy;
         realClient = new APIClient();
     }

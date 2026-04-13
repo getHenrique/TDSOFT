@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-@Component
+@Component("fifoStrategy")
 public class FifoRequester implements QueueStrategy {
 
     private final BlockingQueue<ProxyRequest> requestQueue = new LinkedBlockingQueue<>();

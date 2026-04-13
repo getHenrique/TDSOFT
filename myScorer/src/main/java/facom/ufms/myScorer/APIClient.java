@@ -9,7 +9,7 @@ import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 import tools.jackson.databind.JsonNode;
 
-@Service
+//@Service
 public class APIClient implements ScoreClient {
 
     @Override
